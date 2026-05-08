@@ -2631,8 +2631,19 @@ async function signOutMember() {
   try { await signOutFn(); } catch(e) {}
   currentUser = null; currentMember = null;
   ['ram_callsign','ram_password','ram_approved','ram_discord','ram_rsi','ram_pending','ram_enrolled'].forEach(k=>localStorage.removeItem(k));
+  // Reset button to signup mode
   const label = document.getElementById('rsi-btn-label');
-  if (label) label.textContent = 'RSI';
+  if (label) label.textContent = 'Signup / Sign In';
+  const arrow = document.getElementById('rsi-btn-arrow');
+  if (arrow) arrow.style.display = 'none';
+  const btn = document.getElementById('rsi-btn');
+  if (btn) btn.onclick = function() {
+    var g = document.getElementById('signup-gate');
+    g.style.cssText = 'display:flex;flex-direction:column;align-items:center;position:fixed;inset:0;z-index:9500;background:rgba(4,7,15,0.98);backdrop-filter:blur(14px);overflow-y:auto;padding-top:40px;';
+    document.getElementById('ss-step-1').style.display = 'block';
+    document.getElementById('ss-step-2').style.display = 'none';
+    document.getElementById('ss-step-3').style.display = 'none';
+  };
   updateRsiDropdown();
   goToMain();
 }
@@ -3542,9 +3553,14 @@ function updateCallsignDisplay(callsign) {
   if (h1) h1.innerHTML = 'Welcome,<br><em style="font-style:normal;color:#00c8ff;text-shadow:0 0 30px rgba(0,200,255,0.6);">' + callsign + '.</em>';
   const disp = document.getElementById('acad-callsign-display');
   if (disp) disp.textContent = '// ' + callsign;
-  // Update RSI dropdown button label
+  // Update RSI button label and show arrow
   const label = document.getElementById('rsi-btn-label');
   if (label) label.textContent = callsign;
+  const arrow = document.getElementById('rsi-btn-arrow');
+  if (arrow) arrow.style.display = 'inline';
+  // Switch button to dropdown mode — replace onclick
+  const btn = document.getElementById('rsi-btn');
+  if (btn) btn.onclick = function() { toggleRsiDropdown(); };
   updateRsiDropdown();
   checkAdminButton();
 }
