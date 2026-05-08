@@ -1558,7 +1558,6 @@ textarea.inp { resize: vertical; min-height: 80px; font-family: 'Barlow', sans-s
   </table>
 </section>
 
-
 <!-- ─── CTA ─── -->
 <section class="cta" id="enroll">
   <div class="cta-headline">Ready to Join<br><em>The Second Fleet?</em></div>
@@ -1588,10 +1587,6 @@ textarea.inp { resize: vertical; min-height: 80px; font-family: 'Barlow', sans-s
 <!-- ════════════════════════════════════════
      ACADEMY PORTAL — hidden on load
 ════════════════════════════════════════ -->
-<div id="page-academy" style="display:none !important;">
-
-<!-- ══ ENROLLMENT GATE — shown on first visit ══ -->
-<!-- ══ SIGNUP / SIGN IN OVERLAY — from RSI dropdown ══ -->
 <div id="signup-gate" style="display:none;position:fixed;inset:0;z-index:9500;background:rgba(4,7,15,0.98);align-items:center;justify-content:flex-start;overflow-y:auto;backdrop-filter:blur(14px);flex-direction:column;padding-top:40px;">
   <div style="position:absolute;inset:0;background-image:linear-gradient(rgba(0,180,255,0.05) 1px,transparent 1px),linear-gradient(90deg,rgba(0,180,255,0.05) 1px,transparent 1px);background-size:50px 50px;pointer-events:none;"></div>
 
@@ -1672,6 +1667,11 @@ textarea.inp { resize: vertical; min-height: 80px; font-family: 'Barlow', sans-s
   </div>
 
 </div>
+
+<div id="page-academy" style="display:none !important;">
+
+<!-- ══ ENROLLMENT GATE — shown on first visit ══ -->
+<!-- ══ SIGNUP / SIGN IN OVERLAY — from RSI dropdown ══ -->
 
 
 <!-- ══ ACADEMY ENROLLMENT GATE — only shown first time going to academy after signing in ══ -->
@@ -2134,7 +2134,6 @@ textarea.inp { resize: vertical; min-height: 80px; font-family: 'Barlow', sans-s
   </div>
 </div>
 
-
 <!-- ══ INSTRUCTOR PANEL PAGE ══ -->
 <div id="page-instructor" style="display:none;">
 
@@ -2208,7 +2207,6 @@ textarea.inp { resize: vertical; min-height: 80px; font-family: 'Barlow', sans-s
 </div>
 
 </div><!-- /page-instructor -->
-
 
 <!-- Firebase compat SDKs — loaded immediately before main script -->
 
@@ -2780,7 +2778,6 @@ function saveNote(callsign) {
   if (val) setAdminData('inst_notes_' + callsign, val.value);
 }
 
-
 function goToAdmin() {
   const callsign = localStorage.getItem('ram_callsign');
   console.log('goToAdmin callsign:', callsign, 'expected:', ADMIN_CALLSIGN);
@@ -3282,7 +3279,6 @@ async function graduateCadetByCallsign(callsign) {
   renderAdminMembers();
   alert('✓ ' + callsign + ' graduated and promoted to Private. Post in #academy-graduation-log on Discord.');
 }
-
 
 function clearCadetSession() {
   const callsign = localStorage.getItem('ram_callsign');
@@ -3923,7 +3919,6 @@ function initAcademy() {
 }
 
 
-
 // ═══ ADMIN FUNCTIONS ═══
 
 function initAdminAll() {
@@ -3986,7 +3981,6 @@ async function adminFsDelete(col, id) {
 // ── INIT ──
 
 // ── MEMBERS ──
-
 
 function adminRenderMembers() {
   const members = adminGetData('members', []);
