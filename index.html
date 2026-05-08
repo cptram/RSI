@@ -1140,9 +1140,9 @@ textarea.inp { resize: vertical; min-height: 80px; font-family: 'Barlow', sans-s
 
     <!-- RSI PROFILE DROPDOWN -->
     <li style="position:relative;">
-      <button id="rsi-btn" onclick="toggleRsiDropdown()" style="font-family:var(--mono);font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:var(--amber);border:1px solid var(--amber-d);padding:6px 14px;background:transparent;cursor:pointer;display:flex;align-items:center;gap:8px;transition:all 0.2s;"
+      <button id="rsi-btn" onclick="(function(){var cs=localStorage.getItem('ram_callsign'),ap=localStorage.getItem('ram_approved')==='true';if(!cs||!ap){var g=document.getElementById('signup-gate');g.style.display='flex';g.style.flexDirection='column';g.style.alignItems='center';document.getElementById('ss-step-1').style.display='block';document.getElementById('ss-step-2').style.display='none';document.getElementById('ss-step-3').style.display='none';}else{toggleRsiDropdown();}})()" style="font-family:var(--mono);font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:var(--amber);border:1px solid var(--amber-d);padding:6px 14px;background:transparent;cursor:pointer;display:flex;align-items:center;gap:8px;transition:all 0.2s;"
         onmouseover="this.style.background='rgba(0,200,255,0.08)'" onmouseout="this.style.background='transparent'">
-        <span id="rsi-btn-label">RSI</span>
+        <span id="rsi-btn-label">Signup / Sign In</span>
         <span id="rsi-btn-arrow" style="font-size:9px;transition:transform 0.2s;">▾</span>
       </button>
 
@@ -1154,9 +1154,9 @@ textarea.inp { resize: vertical; min-height: 80px; font-family: 'Barlow', sans-s
           <div id="rsi-dropdown-callsign" style="font-family:var(--display);font-size:18px;font-weight:700;color:var(--white);text-transform:uppercase;letter-spacing:0.04em;">—</div>
           <div id="rsi-dropdown-rank" style="font-family:var(--mono);font-size:10px;color:var(--amber);letter-spacing:0.1em;margin-top:2px;">Not signed in</div>
         </div>
-        <!-- Not signed in state -->
-        <div id="rsi-dropdown-guest" style="padding:10px 6px;">
-          <a href="#" id="signup-link" style="display:block;font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:var(--text2);padding:10px 18px;text-decoration:none;transition:all 0.15s;" onmouseover="this.style.color='var(--amber)'" onmouseout="this.style.color='var(--text2)'">⬡ Signup / Sign In</a>
+        <!-- Not signed in — clicking RSI button opens signup directly -->
+        <div id="rsi-dropdown-guest" style="padding:10px 18px;">
+          <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:#3a6080;letter-spacing:0.1em;text-transform:uppercase;">Not signed in</div>
         </div>
         <!-- Signed in state -->
         <div id="rsi-dropdown-member" style="display:none;padding:10px 6px;">
@@ -1730,11 +1730,53 @@ textarea.inp { resize: vertical; min-height: 80px; font-family: 'Barlow', sans-s
 <div style="padding:120px 80px 60px;border-bottom:1px solid rgba(0,180,255,0.15);position:relative;overflow:hidden;background:#060c18;">
   <div style="position:absolute;inset:0;background-image:linear-gradient(rgba(0,180,255,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(0,180,255,0.04) 1px,transparent 1px);background-size:50px 50px;pointer-events:none;"></div>
   <div style="position:absolute;bottom:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,#00c8ff,transparent);opacity:0.3;"></div>
-  <div style="font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:0.25em;color:#00c8ff;text-transform:uppercase;margin-bottom:16px;display:flex;align-items:center;gap:12px;position:relative;">
-    <span style="display:block;width:32px;height:1px;background:#00c8ff;box-shadow:0 0 6px rgba(0,200,255,0.6);"></span>Second Fleet Academy — Cadet Portal
+  <div style="display:flex;align-items:flex-start;gap:48px;position:relative;">
+    <!-- Logo -->
+    <div style="flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:12px;">
+      <svg width="160" height="160" viewBox="0 0 680 680" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="340" cy="340" r="300" fill="#04070f"/>
+        <polygon points="340,52 576,188 576,492 340,628 104,492 104,188" fill="none" stroke="#c8960a" stroke-width="2.5"/>
+        <polygon points="340,76 554,203 554,469 340,604 126,469 126,203" fill="none" stroke="#c8960a" stroke-width="0.8" opacity="0.5"/>
+        <polygon points="340,118 514,232 514,442 340,562 166,442 166,232" fill="#060c18"/>
+        <line x1="340" y1="52" x2="340" y2="76" stroke="#c8960a" stroke-width="2"/><line x1="576" y1="188" x2="554" y2="203" stroke="#c8960a" stroke-width="2"/><line x1="576" y1="492" x2="554" y2="469" stroke="#c8960a" stroke-width="2"/><line x1="340" y1="628" x2="340" y2="604" stroke="#c8960a" stroke-width="2"/><line x1="104" y1="492" x2="126" y2="469" stroke="#c8960a" stroke-width="2"/><line x1="104" y1="188" x2="126" y2="203" stroke="#c8960a" stroke-width="2"/>
+        <circle cx="340" cy="340" r="155" fill="none" stroke="#00c8ff" stroke-width="0.8" opacity="0.4"/>
+        <circle cx="340" cy="340" r="140" fill="#04070f"/>
+        <circle cx="340" cy="340" r="138" fill="none" stroke="#c8960a" stroke-width="1"/>
+        <g stroke="#a0b4c8" stroke-width="0.4" opacity="0.25"><line x1="340" y1="202" x2="340" y2="478"/><line x1="220" y1="271" x2="460" y2="409"/><line x1="220" y1="409" x2="460" y2="271"/><line x1="202" y1="340" x2="478" y2="340"/></g>
+        <polygon points="340,268 404,304 404,376 340,412 276,376 276,304" fill="#091220" stroke="#00c8ff" stroke-width="1.5"/>
+        <circle cx="340" cy="340" r="22" fill="#04070f" stroke="#00c8ff" stroke-width="1.2"/>
+        <circle cx="340" cy="340" r="6" fill="#00c8ff"/>
+        <circle cx="340" cy="340" r="3" fill="#e8f4ff"/>
+        <polygon points="202,332 204,337 210,337 205,341 207,347 202,343 197,347 199,341 194,337 200,337" fill="#c8960a"/>
+        <polygon points="478,332 480,337 486,337 481,341 483,347 478,343 473,347 475,341 470,337 476,337" fill="#c8960a"/>
+        <polygon points="308,198 310,203 316,203 311,207 313,213 308,209 303,213 305,207 300,203 306,203" fill="#c8960a"/>
+        <polygon points="372,198 374,203 380,203 375,207 377,213 372,209 367,213 369,207 364,203 370,203" fill="#c8960a"/>
+        <polygon points="308,466 310,471 316,471 311,475 313,481 308,477 303,481 305,475 300,471 306,471" fill="#c8960a"/>
+        <polygon points="372,466 374,471 380,471 375,475 377,481 372,477 367,481 369,475 364,471 370,471" fill="#c8960a"/>
+        <defs><path id="acadTopArc" d="M 148,340 A 192,192 0 0,1 532,340"/><path id="acadBotArc" d="M 168,362 A 178,178 0 0,0 512,362"/></defs>
+        <text font-size="15"><textPath href="#acadTopArc" startOffset="50%" text-anchor="middle" font-family="'Share Tech Mono','Courier New',monospace" fill="#c8960a" letter-spacing="5">RAM SPACE INDUSTRIES</textPath></text>
+        <text font-size="11"><textPath href="#acadBotArc" startOffset="50%" text-anchor="middle" font-family="'Share Tech Mono','Courier New',monospace" fill="#5a8aaa" letter-spacing="4">FOUNDED IN THE VERSE</textPath></text>
+        <rect x="272" y="308" width="136" height="17" rx="2" fill="#04070f" opacity="0.9"/>
+        <rect x="272" y="328" width="136" height="17" rx="2" fill="#04070f" opacity="0.9"/>
+        <text x="340" y="321" font-family="'Barlow Condensed','Arial Narrow',sans-serif" font-size="15" font-weight="700" fill="#e8f4ff" text-anchor="middle" letter-spacing="3">SECOND FLEET</text>
+        <text x="340" y="341" font-family="'Barlow Condensed','Arial Narrow',sans-serif" font-size="15" font-weight="700" fill="#e8f4ff" text-anchor="middle" letter-spacing="3">ACADEMY</text>
+        <line x1="284" y1="370" x2="316" y2="370" stroke="#c8960a" stroke-width="0.8" opacity="0.6"/>
+        <line x1="364" y1="370" x2="396" y2="370" stroke="#c8960a" stroke-width="0.8" opacity="0.6"/>
+        <text x="340" y="374" font-family="'Share Tech Mono','Courier New',monospace" font-size="9" fill="#c8960a" text-anchor="middle" letter-spacing="4">SECOND FLEET</text>
+      </svg>
+      <button onclick="downloadAcademyLogo()"
+        style="font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:#00c8ff;border:1px solid rgba(0,200,255,0.3);padding:6px 14px;background:transparent;cursor:pointer;transition:all 0.2s;display:block;text-align:center;width:100%;"
+        onmouseover="this.style.background='rgba(0,200,255,0.1)'" onmouseout="this.style.background='transparent'">⬡ Download Logo</button>
+    </div>
+    <!-- Header text -->
+    <div style="flex:1;">
+      <div style="font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:0.25em;color:#00c8ff;text-transform:uppercase;margin-bottom:16px;display:flex;align-items:center;gap:12px;">
+        <span style="display:block;width:32px;height:1px;background:#00c8ff;box-shadow:0 0 6px rgba(0,200,255,0.6);"></span>Second Fleet Academy — Cadet Portal
+      </div>
+      <h1 id="acad-welcome-h1" style="font-family:'Barlow Condensed',sans-serif;font-size:clamp(40px,7vw,80px);font-weight:700;color:#e8f4ff;text-transform:uppercase;line-height:0.95;letter-spacing:0.01em;margin-bottom:16px;position:relative;text-shadow:0 0 40px rgba(0,200,255,0.3);">Welcome,<br><em style="font-style:normal;color:#00c8ff;text-shadow:0 0 30px rgba(0,200,255,0.6);">Cadet.</em></h1>
+      <p style="font-size:15px;color:#8ab8d8;max-width:600px;line-height:1.8;position:relative;">Complete orientation, pick your division, and earn your place in RAM. Return any time to study new modules or pursue advanced certifications.</p>
+    </div>
   </div>
-  <h1 id="acad-welcome-h1" style="font-family:'Barlow Condensed',sans-serif;font-size:clamp(40px,7vw,80px);font-weight:700;color:#e8f4ff;text-transform:uppercase;line-height:0.95;letter-spacing:0.01em;margin-bottom:16px;position:relative;text-shadow:0 0 40px rgba(0,200,255,0.3);">Welcome,<br><em style="font-style:normal;color:#00c8ff;text-shadow:0 0 30px rgba(0,200,255,0.6);">Cadet.</em></h1>
-  <p style="font-size:15px;color:#8ab8d8;max-width:600px;line-height:1.8;position:relative;">Complete orientation, pick your division, and earn your place in RAM. Return any time to study new modules or pursue advanced certifications.</p>
 </div>
 
 <!-- ══ TAB BAR ══ -->
@@ -2517,6 +2559,25 @@ function goToMain() {
 
 // ── RSI DROPDOWN ──
 let dropdownOpen = false;
+function rsiButtonClick() {
+  const callsign = localStorage.getItem('ram_callsign');
+  const approved = localStorage.getItem('ram_approved') === 'true';
+  if (!callsign || !approved) {
+    // Not signed in — open signup gate directly, no dropdown
+    const gate = document.getElementById('signup-gate');
+    gate.style.display = 'flex';
+    gate.style.flexDirection = 'column';
+    gate.style.alignItems = 'center';
+    document.getElementById('ss-step-1').style.display = 'block';
+    document.getElementById('ss-step-2').style.display = 'none';
+    document.getElementById('ss-step-3').style.display = 'none';
+    if (typeof setSsMode === 'function') setSsMode('new');
+  } else {
+    // Signed in — toggle dropdown as normal
+    toggleRsiDropdown();
+  }
+}
+
 function toggleRsiDropdown() {
   dropdownOpen = !dropdownOpen;
   const dd = document.getElementById('rsi-dropdown');
@@ -3501,6 +3562,68 @@ function updateCallsignDisplay(callsign) {
 // console shortcut: type openAdmin() to open admin panel directly
 window.openAdmin = openAdminPanel;
 
+function downloadAcademyLogo() {
+  const svg = `<svg width="680" height="680" viewBox="0 0 680 680" xmlns="http://www.w3.org/2000/svg">
+<circle cx="340" cy="340" r="300" fill="#04070f"/>
+<polygon points="340,52 576,188 576,492 340,628 104,492 104,188" fill="none" stroke="#c8960a" stroke-width="2.5"/>
+<polygon points="340,76 554,203 554,469 340,604 126,469 126,203" fill="none" stroke="#c8960a" stroke-width="0.8" opacity="0.5"/>
+<polygon points="340,98 532,218 532,450 340,582 148,450 148,218" fill="none" stroke="#a0b4c8" stroke-width="0.5" opacity="0.3"/>
+<polygon points="340,118 514,232 514,442 340,562 166,442 166,232" fill="#060c18"/>
+<line x1="340" y1="52" x2="340" y2="76" stroke="#c8960a" stroke-width="2"/>
+<line x1="576" y1="188" x2="554" y2="203" stroke="#c8960a" stroke-width="2"/>
+<line x1="576" y1="492" x2="554" y2="469" stroke="#c8960a" stroke-width="2"/>
+<line x1="340" y1="628" x2="340" y2="604" stroke="#c8960a" stroke-width="2"/>
+<line x1="104" y1="492" x2="126" y2="469" stroke="#c8960a" stroke-width="2"/>
+<line x1="104" y1="188" x2="126" y2="203" stroke="#c8960a" stroke-width="2"/>
+<circle cx="340" cy="340" r="155" fill="none" stroke="#00c8ff" stroke-width="0.8" opacity="0.4"/>
+<circle cx="340" cy="340" r="145" fill="none" stroke="#00c8ff" stroke-width="0.4" opacity="0.2"/>
+<circle cx="340" cy="340" r="140" fill="#04070f"/>
+<circle cx="340" cy="340" r="138" fill="none" stroke="#c8960a" stroke-width="1"/>
+<line x1="340" y1="202" x2="340" y2="478" stroke="#a0b4c8" stroke-width="0.4" opacity="0.25"/>
+<line x1="220" y1="271" x2="460" y2="409" stroke="#a0b4c8" stroke-width="0.4" opacity="0.25"/>
+<line x1="220" y1="409" x2="460" y2="271" stroke="#a0b4c8" stroke-width="0.4" opacity="0.25"/>
+<line x1="202" y1="340" x2="478" y2="340" stroke="#a0b4c8" stroke-width="0.4" opacity="0.25"/>
+<line x1="243" y1="232" x2="437" y2="448" stroke="#a0b4c8" stroke-width="0.4" opacity="0.25"/>
+<line x1="243" y1="448" x2="437" y2="232" stroke="#a0b4c8" stroke-width="0.4" opacity="0.25"/>
+<polygon points="340,268 404,304 404,376 340,412 276,376 276,304" fill="#091220" stroke="#00c8ff" stroke-width="1.5"/>
+<polygon points="340,280 392,312 392,368 340,400 288,368 288,312" fill="none" stroke="#00c8ff" stroke-width="0.6" opacity="0.4"/>
+<circle cx="340" cy="340" r="22" fill="#04070f" stroke="#00c8ff" stroke-width="1.2"/>
+<circle cx="340" cy="340" r="14" fill="rgba(0,200,255,0.12)" stroke="#00c8ff" stroke-width="1"/>
+<circle cx="340" cy="340" r="6" fill="#00c8ff"/>
+<circle cx="340" cy="340" r="3" fill="#e8f4ff"/>
+<polygon points="202,332 204,337 210,337 205,341 207,347 202,343 197,347 199,341 194,337 200,337" fill="#c8960a"/>
+<polygon points="478,332 480,337 486,337 481,341 483,347 478,343 473,347 475,341 470,337 476,337" fill="#c8960a"/>
+<polygon points="308,198 310,203 316,203 311,207 313,213 308,209 303,213 305,207 300,203 306,203" fill="#c8960a"/>
+<polygon points="372,198 374,203 380,203 375,207 377,213 372,209 367,213 369,207 364,203 370,203" fill="#c8960a"/>
+<polygon points="308,466 310,471 316,471 311,475 313,481 308,477 303,481 305,475 300,471 306,471" fill="#c8960a"/>
+<polygon points="372,466 374,471 380,471 375,475 377,481 372,477 367,481 369,475 364,471 370,471" fill="#c8960a"/>
+<defs>
+  <path id="topArcDl" d="M 148,340 A 192,192 0 0,1 532,340"/>
+  <path id="botArcDl" d="M 168,362 A 178,178 0 0,0 512,362"/>
+</defs>
+<text font-size="15"><textPath href="#topArcDl" startOffset="50%" text-anchor="middle" font-family="Share Tech Mono,Courier New,monospace" fill="#c8960a" letter-spacing="5">RAM SPACE INDUSTRIES</textPath></text>
+<text font-size="11"><textPath href="#botArcDl" startOffset="50%" text-anchor="middle" font-family="Share Tech Mono,Courier New,monospace" fill="#5a8aaa" letter-spacing="4">FOUNDED IN THE VERSE</textPath></text>
+<rect x="272" y="308" width="136" height="17" rx="2" fill="#04070f" opacity="0.9"/>
+<rect x="272" y="328" width="136" height="17" rx="2" fill="#04070f" opacity="0.9"/>
+<text x="340" y="321" font-family="Barlow Condensed,Arial Narrow,sans-serif" font-size="15" font-weight="700" fill="#e8f4ff" text-anchor="middle" letter-spacing="3">SECOND FLEET</text>
+<text x="340" y="341" font-family="Barlow Condensed,Arial Narrow,sans-serif" font-size="15" font-weight="700" fill="#e8f4ff" text-anchor="middle" letter-spacing="3">ACADEMY</text>
+<line x1="284" y1="370" x2="316" y2="370" stroke="#c8960a" stroke-width="0.8" opacity="0.6"/>
+<line x1="364" y1="370" x2="396" y2="370" stroke="#c8960a" stroke-width="0.8" opacity="0.6"/>
+<text x="340" y="374" font-family="Share Tech Mono,Courier New,monospace" font-size="9" fill="#c8960a" text-anchor="middle" letter-spacing="4">SECOND FLEET</text>
+<polygon points="340,58 352,65 352,79 340,86 328,79 328,65" fill="none" stroke="#c8960a" stroke-width="1" opacity="0.6"/>
+<circle cx="340" cy="72" r="3" fill="#c8960a"/>
+<polygon points="340,622 352,615 352,601 340,594 328,601 328,615" fill="none" stroke="#c8960a" stroke-width="1" opacity="0.6"/>
+<circle cx="340" cy="608" r="3" fill="#c8960a"/>
+</svg>`;
+  const blob = new Blob([svg], { type: 'image/svg+xml' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'second-fleet-academy-logo.svg';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
 // ── SIGNUP LINK — wired via addEventListener to avoid propagation issues ──
 document.addEventListener('DOMContentLoaded', function() {
   const signupLink = document.getElementById('signup-link');
@@ -3524,6 +3647,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
 function checkAdminButton() {
   const callsign = localStorage.getItem('ram_callsign');
+  const approved = localStorage.getItem('ram_approved') === 'true';
+  // Update RSI button label
+  const label = document.getElementById('rsi-btn-label');
+  const arrow = document.getElementById('rsi-btn-arrow');
+  if (label) label.textContent = (callsign && approved) ? callsign : 'Signup / Sign In';
+  if (arrow) arrow.style.display = (callsign && approved) ? 'inline' : 'none';
   const wrap = document.getElementById('admin-nav-btn-wrap');
   if (!wrap) return;
   if (callsign === ADMIN_CALLSIGN) {
