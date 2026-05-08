@@ -4086,25 +4086,63 @@ function adminAssignCadet() {
 }
 
 // ── APPLICATIONS ──
-function adminRenderApps() {
-  const apps = adminGetData('applications', []);
+async function adminRenderApps() {
   const el = document.getElementById('alist-applications');
-  if (!apps.length) { el.innerHTML = '<div class="empty">No applications yet.</div>'; return; }
-  el.innerHTML = apps.map((a, i) => `
+  if (!el) return;
+  el.innerHTML = '<div class="empty">Loading...</div>';
+
+  // Pull from Firestore — get all members with status Pending or Rejected
+  const fsMembers = await adminFsGetAll('members');
+  const pending = fsMembers.filter(m => !m.isAdmin && m.callsign !== 'CAPTAINRAM');
+
+  // Merge with local admin data for any extras
+  const local = adminGetData('applications', []);
+  local.forEach(a => {
+    if (!pending.find(m => m.callsign === a.callsign)) {
+      pending.push({ callsign: a.callsign, discord: a.discord, rsi: a.rsi, applicationMessage: a.message, status: a.status || 'Pending', examPassed: a.examPassed || false, date: a.date, answers: a.answers });
+    }
+  });
+
+  if (!pending.length) { el.innerHTML = '<div class="empty">No applications yet.</div>'; return; }
+
+  el.innerHTML = pending.map((a, i) => `
     <div class="row" style="flex-direction:column;gap:0;border-color:${a.status==='Approved'?'rgba(31,200,160,0.3)':a.status==='Rejected'?'rgba(232,64,64,0.2)':'#1e3a5f'}">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:${a.answers?'12px':'0'};">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:8px;">
         <div class="row-main">
-          <div class="row-name">${a.callsign} <span style="font-size:10px;color:${a.status==='Approved'?'#1fc8a0':a.status==='Rejected'?'#e84040':'#00c8ff'};border:1px solid;padding:2px 8px;margin-left:8px;">${a.status}</span> ${a.examPassed?'<span style="color:#1fc8a0;font-size:10px;margin-left:6px;">✓ EXAM PASSED</span>':'<span style="color:#e84040;font-size:10px;margin-left:6px;">✗ EXAM NOT PASSED</span>'}</div>
+          <div class="row-name">${a.callsign} <span style="font-size:10px;color:${a.status==='Approved'?'#1fc8a0':a.status==='Rejected'?'#e84040':'#00c8ff'};border:1px solid;padding:2px 8px;margin-left:8px;">${a.status||'Pending'}</span></div>
           <div class="row-meta" style="margin-top:6px;">Discord: <span style="color:#8ab8d8">${a.discord||'—'}</span> · RSI: <span style="color:#8ab8d8">${a.rsi||'—'}</span> · ${a.date||''}</div>
-          ${a.message?`<div style="font-size:13px;color:#8ab8d8;margin-top:8px;padding:10px 14px;background:#091220;border:1px solid #1e3a5f;border-left:2px solid #00c8ff;line-height:1.7;"><span style="font-family:'Share Tech Mono',monospace;font-size:9px;color:#3a6080;text-transform:uppercase;display:block;margin-bottom:4px;">Application Message</span>${a.message}</div>`:''}
+          ${a.applicationMessage?`<div style="font-size:13px;color:#8ab8d8;margin-top:8px;padding:10px 14px;background:#091220;border:1px solid #1e3a5f;border-left:2px solid #00c8ff;line-height:1.7;"><span style="font-family:'Share Tech Mono',monospace;font-size:9px;color:#3a6080;text-transform:uppercase;display:block;margin-bottom:4px;">Application Message</span>${a.applicationMessage}</div>`:''}
         </div>
         <div class="row-actions">
-          ${a.status!=='Approved'?`<button class="btn btn-green" onclick="adminApproveApp(${i})">Approve</button>`:''}
-          ${a.status!=='Rejected'?`<button class="btn btn-danger" onclick="adminRejectApp(${i})">Reject</button>`:''}
+          ${a.status!=='Approved'?`<button class="btn btn-green" onclick="adminApproveByCallsign('${a.callsign}')">Approve</button>`:''}
+          ${a.status!=='Rejected'?`<button class="btn btn-danger" onclick="adminRejectByCallsign('${a.callsign}')">Reject</button>`:''}
         </div>
       </div>
-      ${a.answers?`<div class="answers">${a.answers.map((ans,qi)=>`<div class="answer-row"><div class="answer-q">Q${qi+1}</div><div><div class="answer-text">${ans.q}</div><div class="answer-val ${['B','B','D','C','B'][qi]===ans.answer?'correct':'wrong'}">${ans.answer} — ${ans.text}</div></div></div>`).join('')}</div>`:''}
     </div>`).join('');
+}
+
+async function adminApproveByCallsign(callsign) {
+  await adminFsSet('members', callsign, { approved: true, status: 'Approved' });
+  // Update local too
+  const apps = adminGetData('applications', []);
+  const idx = apps.findIndex(a => a.callsign === callsign);
+  if (idx !== -1) { apps[idx].status = 'Approved'; adminSetData('applications', apps); }
+  const members = adminGetData('members', []);
+  if (!members.find(m => m.callsign === callsign)) {
+    members.push({ callsign, rank: 'Cadet', division: 'UNASSIGNED', sp: 0 });
+    adminSetData('members', members);
+  }
+  adminRenderApps();
+  adminRenderMembers();
+  alert('✓ ' + callsign + ' approved — they can now access the site.');
+}
+
+async function adminRejectByCallsign(callsign) {
+  await adminFsSet('members', callsign, { status: 'Rejected', approved: false });
+  const apps = adminGetData('applications', []);
+  const idx = apps.findIndex(a => a.callsign === callsign);
+  if (idx !== -1) { apps[idx].status = 'Rejected'; adminSetData('applications', apps); }
+  adminRenderApps();
 }
 
 async function adminApproveApp(i) {
