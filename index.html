@@ -4315,7 +4315,10 @@ async function adminRenderAcademy() {
   el.innerHTML = '<div class="empty">Loading from Firestore...</div>';
   const fsMembers = await adminFsGetAll('members');
   const apps = adminGetData('applications', []);
-  const approved = fsMembers.filter(m => m.approved);
+  // Exclude admin account and any records with undefined/missing callsign
+  const approved = fsMembers.filter(m => m.approved && m.id !== 'CAPTAINRAM' && m.callsign !== 'CAPTAINRAM' && m.id && m.id !== 'undefined');
+  // Make sure callsign is set from doc id if missing
+  approved.forEach(m => { if (!m.callsign || m.callsign === 'undefined') m.callsign = m.id; });
   apps.forEach(a => {
     if (!approved.find(m => m.callsign === a.callsign)) {
       approved.push({ callsign: a.callsign, discord: a.discord, rsi: a.rsi, rank: 'Cadet', division: 'UNASSIGNED', sp: 0, checks: [], mods: [], approved: true, date: a.date, answers: a.answers });
