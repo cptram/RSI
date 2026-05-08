@@ -4086,6 +4086,11 @@ function adminAssignCadet() {
 }
 
 // ── APPLICATIONS ──
+function safe(val, fallback) {
+  if (val === undefined || val === null || val === 'undefined' || val === '') return fallback || '—';
+  return val;
+}
+
 async function adminRenderApps() {
   const el = document.getElementById('alist-applications');
   if (!el) return;
@@ -4111,22 +4116,33 @@ async function adminRenderApps() {
       ${pending} pending · ${apps.length} total
     </div>
     ${apps.map(a => `
-    <div class="row" style="flex-direction:column;gap:0;margin-bottom:4px;border-color:${a.status==='Approved'?'rgba(31,200,160,0.3)':a.status==='Rejected'?'rgba(232,64,64,0.2)':'rgba(0,200,255,0.2)'}">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:8px;">
-        <div class="row-main">
-          <div class="row-name">${a.callsign}
-            <span style="font-size:10px;color:${a.status==='Approved'?'#1fc8a0':a.status==='Rejected'?'#e84040':'#00c8ff'};border:1px solid currentColor;padding:2px 8px;margin-left:8px;">${a.status||'Pending'}</span>
+    <div class="row" style="flex-direction:column;gap:0;margin-bottom:6px;border-color:${a.status==='Approved'?'rgba(31,200,160,0.3)':a.status==='Rejected'?'rgba(232,64,64,0.2)':'rgba(0,200,255,0.25)'}">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px;">
+        <div class="row-main" style="flex:1;">
+          <div class="row-name">${safe(a.callsign,'Unknown')}
+            <span style="font-size:10px;color:${a.status==='Approved'?'#1fc8a0':a.status==='Rejected'?'#e84040':'#00c8ff'};border:1px solid currentColor;padding:2px 8px;margin-left:8px;">${a.status&&a.status!=='undefined'?a.status:'Pending'}</span>
           </div>
-          <div class="row-meta" style="margin-top:6px;line-height:2;">
-            Discord: <span style="color:#8ab8d8">${a.discord||'—'}</span> ·
-            RSI: <span style="color:#8ab8d8">${a.rsi||'—'}</span> ·
-            ${a.date||''}
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:10px;">
+            <div style="background:#091220;border:1px solid #1e3a5f;padding:8px 12px;">
+              <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:#3a6080;text-transform:uppercase;letter-spacing:0.15em;margin-bottom:3px;">Discord</div>
+              <div style="font-size:13px;color:#e8f4ff;">${safe(a.discord)}</div>
+            </div>
+            <div style="background:#091220;border:1px solid #1e3a5f;padding:8px 12px;">
+              <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:#3a6080;text-transform:uppercase;letter-spacing:0.15em;margin-bottom:3px;">RSI Name</div>
+              <div style="font-size:13px;color:#e8f4ff;">${safe(a.rsi)}</div>
+            </div>
           </div>
-          ${a.applicationMessage?`<div style="font-size:13px;color:#8ab8d8;margin-top:8px;padding:10px 14px;background:#091220;border:1px solid #1e3a5f;border-left:2px solid #00c8ff;line-height:1.7;"><span style="font-family:'Share Tech Mono',monospace;font-size:9px;color:#3a6080;text-transform:uppercase;display:block;margin-bottom:4px;">Application Message</span>${a.applicationMessage}</div>`:''}
+          ${a.date&&a.date!=='undefined'?`<div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:#3a6080;margin-top:6px;">Applied: ${a.date}</div>`:''}
+          ${a.applicationMessage&&a.applicationMessage!=='undefined'?`
+            <div style="margin-top:10px;padding:12px 14px;background:#091220;border:1px solid #1e3a5f;border-left:3px solid #00c8ff;line-height:1.7;">
+              <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:#00c8ff;text-transform:uppercase;letter-spacing:0.15em;margin-bottom:6px;">Application Message</div>
+              <div style="font-size:13px;color:#8ab8d8;">${a.applicationMessage}</div>
+            </div>`
+          :`<div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:#3a6080;margin-top:8px;font-style:italic;">No application message.</div>`}
         </div>
-        <div class="row-actions" style="flex-direction:column;gap:6px;">
-          ${a.status!=='Approved'?`<button class="btn btn-green" onclick="adminApproveByCallsign('${a.callsign}')">✓ Approve</button>`:'<span style="font-family:\'Share Tech Mono\',monospace;font-size:10px;color:#1fc8a0;">✓ Approved</span>'}
-          ${a.status!=='Rejected'?`<button class="btn btn-danger" onclick="adminRejectByCallsign('${a.callsign}')">✗ Reject</button>`:'<span style="font-family:\'Share Tech Mono\',monospace;font-size:10px;color:#e84040;">✗ Rejected</span>'}
+        <div style="display:flex;flex-direction:column;gap:6px;min-width:110px;flex-shrink:0;">
+          ${a.status!=='Approved'?`<button class="btn btn-green" style="width:100%;padding:8px 0;" onclick="adminApproveByCallsign('${a.callsign}')">✓ Approve</button>`:`<div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:#1fc8a0;text-align:center;padding:8px 0;">✓ Approved</div>`}
+          ${a.status!=='Rejected'?`<button class="btn btn-danger" style="width:100%;padding:8px 0;" onclick="adminRejectByCallsign('${a.callsign}')">✗ Reject</button>`:`<div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:#e84040;text-align:center;padding:8px 0;">✗ Rejected</div>`}
         </div>
       </div>
     </div>`).join('')}`;
@@ -4330,9 +4346,9 @@ async function adminRenderAcademy() {
       return `<div class="row" style="flex-direction:column;gap:8px;margin-bottom:4px;border-color:${isGrad?'rgba(0,200,255,0.3)':allDone?'rgba(31,200,160,0.3)':'#1e3a5f'}">
         <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px;">
           <div>
-            <div class="row-name">${a.callsign} <span style="font-size:10px;border:1px solid;padding:2px 8px;margin-left:8px;color:${isGrad?'#00c8ff':'#5a8aaa'}">${a.rank||'Cadet'}</span>${sigOff?' <span style="color:#1fc8a0;font-size:10px;">✓ Sign-Off</span>':''}</div>
+            <div class="row-name">${a.callsign} <span style="font-size:10px;border:1px solid;padding:2px 8px;margin-left:8px;color:${isGrad?'#00c8ff':'#5a8aaa'}">${a.rank && a.rank !== 'undefined' ? a.rank : 'Cadet'}</span>${sigOff?' <span style="color:#1fc8a0;font-size:10px;">✓ Sign-Off</span>':''}</div>
             <div class="row-meta" style="margin-top:6px;line-height:2">
-              Discord: <span style="color:#8ab8d8">${a.discord||'—'}</span> · RSI: <span style="color:#8ab8d8">${a.rsi||'—'}</span> · Div: <span style="color:#00c8ff">${a.division||'—'}</span> · SP: <span style="color:#00c8ff">${a.sp||0}</span> · Instructor: <span style="color:#8ab8d8">${a.assignedInstructor||'Unassigned'}</span>
+              Discord: <span style="color:#8ab8d8">${safe(a.discord)}</span> · RSI: <span style="color:#8ab8d8">${safe(a.rsi)}</span> · Div: <span style="color:#00c8ff">${a.division && a.division !== 'undefined' ? a.division : '—'}</span> · SP: <span style="color:#00c8ff">${a.sp||0}</span> · Instructor: <span style="color:#8ab8d8">${a.assignedInstructor && a.assignedInstructor !== 'undefined' ? a.assignedInstructor : 'Unassigned'}</span>
             </div>
           </div>
           <div>${!isGrad && allDone ? `<button class="btn btn-green" onclick="adminGraduate('${a.callsign}')">⬡ Graduate</button>` : ''}</div>
