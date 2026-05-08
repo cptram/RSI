@@ -4091,34 +4091,45 @@ async function adminRenderApps() {
   if (!el) return;
   el.innerHTML = '<div class="empty">Loading...</div>';
 
-  // Pull from Firestore — get all members with status Pending or Rejected
+  // Pull ALL members from Firestore
   const fsMembers = await adminFsGetAll('members');
-  const pending = fsMembers.filter(m => !m.isAdmin && m.callsign !== 'CAPTAINRAM');
 
-  // Merge with local admin data for any extras
-  const local = adminGetData('applications', []);
-  local.forEach(a => {
-    if (!pending.find(m => m.callsign === a.callsign)) {
-      pending.push({ callsign: a.callsign, discord: a.discord, rsi: a.rsi, applicationMessage: a.message, status: a.status || 'Pending', examPassed: a.examPassed || false, date: a.date, answers: a.answers });
-    }
-  });
+  // Only show non-admin members — split into pending and approved/rejected
+  const apps = fsMembers
+    .filter(m => m.callsign !== 'CAPTAINRAM' && !m.isAdmin)
+    .sort((a, b) => {
+      // Pending first, then rejected, then approved
+      const order = { 'Pending': 0, 'Rejected': 1, 'Approved': 2 };
+      return (order[a.status] ?? 0) - (order[b.status] ?? 0);
+    });
 
-  if (!pending.length) { el.innerHTML = '<div class="empty">No applications yet.</div>'; return; }
+  if (!apps.length) { el.innerHTML = '<div class="empty">No applications yet.</div>'; return; }
 
-  el.innerHTML = pending.map((a, i) => `
-    <div class="row" style="flex-direction:column;gap:0;border-color:${a.status==='Approved'?'rgba(31,200,160,0.3)':a.status==='Rejected'?'rgba(232,64,64,0.2)':'#1e3a5f'}">
+  const pending = apps.filter(a => a.status !== 'Approved').length;
+  el.innerHTML = `
+    <div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:#5a8aaa;letter-spacing:0.1em;margin-bottom:16px;">
+      ${pending} pending · ${apps.length} total
+    </div>
+    ${apps.map(a => `
+    <div class="row" style="flex-direction:column;gap:0;margin-bottom:4px;border-color:${a.status==='Approved'?'rgba(31,200,160,0.3)':a.status==='Rejected'?'rgba(232,64,64,0.2)':'rgba(0,200,255,0.2)'}">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:8px;">
         <div class="row-main">
-          <div class="row-name">${a.callsign} <span style="font-size:10px;color:${a.status==='Approved'?'#1fc8a0':a.status==='Rejected'?'#e84040':'#00c8ff'};border:1px solid;padding:2px 8px;margin-left:8px;">${a.status||'Pending'}</span></div>
-          <div class="row-meta" style="margin-top:6px;">Discord: <span style="color:#8ab8d8">${a.discord||'—'}</span> · RSI: <span style="color:#8ab8d8">${a.rsi||'—'}</span> · ${a.date||''}</div>
+          <div class="row-name">${a.callsign}
+            <span style="font-size:10px;color:${a.status==='Approved'?'#1fc8a0':a.status==='Rejected'?'#e84040':'#00c8ff'};border:1px solid currentColor;padding:2px 8px;margin-left:8px;">${a.status||'Pending'}</span>
+          </div>
+          <div class="row-meta" style="margin-top:6px;line-height:2;">
+            Discord: <span style="color:#8ab8d8">${a.discord||'—'}</span> ·
+            RSI: <span style="color:#8ab8d8">${a.rsi||'—'}</span> ·
+            ${a.date||''}
+          </div>
           ${a.applicationMessage?`<div style="font-size:13px;color:#8ab8d8;margin-top:8px;padding:10px 14px;background:#091220;border:1px solid #1e3a5f;border-left:2px solid #00c8ff;line-height:1.7;"><span style="font-family:'Share Tech Mono',monospace;font-size:9px;color:#3a6080;text-transform:uppercase;display:block;margin-bottom:4px;">Application Message</span>${a.applicationMessage}</div>`:''}
         </div>
-        <div class="row-actions">
-          ${a.status!=='Approved'?`<button class="btn btn-green" onclick="adminApproveByCallsign('${a.callsign}')">Approve</button>`:''}
-          ${a.status!=='Rejected'?`<button class="btn btn-danger" onclick="adminRejectByCallsign('${a.callsign}')">Reject</button>`:''}
+        <div class="row-actions" style="flex-direction:column;gap:6px;">
+          ${a.status!=='Approved'?`<button class="btn btn-green" onclick="adminApproveByCallsign('${a.callsign}')">✓ Approve</button>`:'<span style="font-family:\'Share Tech Mono\',monospace;font-size:10px;color:#1fc8a0;">✓ Approved</span>'}
+          ${a.status!=='Rejected'?`<button class="btn btn-danger" onclick="adminRejectByCallsign('${a.callsign}')">✗ Reject</button>`:'<span style="font-family:\'Share Tech Mono\',monospace;font-size:10px;color:#e84040;">✗ Rejected</span>'}
         </div>
       </div>
-    </div>`).join('');
+    </div>`).join('')}`;
 }
 
 async function adminApproveByCallsign(callsign) {
