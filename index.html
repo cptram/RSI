@@ -2607,7 +2607,7 @@ function updateRsiDropdown() {
   if (callsign && approved) {
     if (label) label.textContent = callsign;
     if (cs) cs.textContent = callsign;
-    if (rank) rank.textContent = currentMember ? currentMember.rank : 'Cadet';
+    if (rank) rank.textContent = callsign === ADMIN_CALLSIGN ? 'Admiral' : (currentMember ? currentMember.rank : 'Cadet');
     if (guest) guest.style.display = 'none';
     if (member) member.style.display = 'block';
     if (instBtn) instBtn.style.display = isInstructor() ? 'block' : 'none';
