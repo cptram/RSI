@@ -1138,28 +1138,21 @@ textarea.inp { resize: vertical; min-height: 80px; font-family: 'Barlow', sans-s
       <a id="admin-nav-btn" onclick="goToAdmin()" class="nav-cta" style="cursor:pointer;border-color:rgba(232,64,64,0.4);color:#e84040;" onmouseover="this.style.background='#e84040';this.style.color='#04070f'" onmouseout="this.style.background='transparent';this.style.color='#e84040'">⬡ Admin</a>
     </li>
 
-    <!-- RSI PROFILE DROPDOWN -->
+    <!-- RSI / SIGNUP BUTTON -->
     <li style="position:relative;">
-      <button id="rsi-btn" onclick="(function(){var cs=localStorage.getItem('ram_callsign'),ap=localStorage.getItem('ram_approved')==='true';if(!cs||!ap){var g=document.getElementById('signup-gate');g.style.display='flex';g.style.flexDirection='column';g.style.alignItems='center';document.getElementById('ss-step-1').style.display='block';document.getElementById('ss-step-2').style.display='none';document.getElementById('ss-step-3').style.display='none';}else{toggleRsiDropdown();}})()" style="font-family:var(--mono);font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:var(--amber);border:1px solid var(--amber-d);padding:6px 14px;background:transparent;cursor:pointer;display:flex;align-items:center;gap:8px;transition:all 0.2s;"
-        onmouseover="this.style.background='rgba(0,200,255,0.08)'" onmouseout="this.style.background='transparent'">
+      <a id="rsi-btn" class="nav-cta" style="cursor:pointer;display:flex;align-items:center;gap:8px;" onclick="(function(){var cs=localStorage.getItem('ram_callsign'),ap=localStorage.getItem('ram_approved')==='true';if(!cs||!ap){var g=document.getElementById('signup-gate');g.style.cssText='display:flex;flex-direction:column;align-items:center;position:fixed;inset:0;z-index:9500;background:rgba(4,7,15,0.98);backdrop-filter:blur(14px);overflow-y:auto;padding-top:40px;';document.getElementById('ss-step-1').style.display='block';document.getElementById('ss-step-2').style.display='none';document.getElementById('ss-step-3').style.display='none';}else{toggleRsiDropdown();}})()">
         <span id="rsi-btn-label">Signup / Sign In</span>
-        <span id="rsi-btn-arrow" style="font-size:9px;transition:transform 0.2s;">▾</span>
-      </button>
+        <span id="rsi-btn-arrow" style="font-size:9px;transition:transform 0.2s;display:none;">▾</span>
+      </a>
 
-      <!-- Dropdown panel -->
+      <!-- Dropdown panel — only shown when signed in -->
       <div id="rsi-dropdown" style="display:none;position:absolute;top:calc(100% + 8px);right:0;min-width:220px;background:#060c18;border:1px solid rgba(0,200,255,0.2);box-shadow:0 8px 40px rgba(0,50,120,0.5);z-index:2000;">
-        <!-- User info -->
         <div id="rsi-dropdown-user" style="padding:14px 18px;border-bottom:1px solid rgba(0,200,255,0.1);">
           <div style="font-family:var(--mono);font-size:9px;letter-spacing:0.2em;color:var(--text3);text-transform:uppercase;margin-bottom:4px;">Signed in as</div>
           <div id="rsi-dropdown-callsign" style="font-family:var(--display);font-size:18px;font-weight:700;color:var(--white);text-transform:uppercase;letter-spacing:0.04em;">—</div>
           <div id="rsi-dropdown-rank" style="font-family:var(--mono);font-size:10px;color:var(--amber);letter-spacing:0.1em;margin-top:2px;">Not signed in</div>
         </div>
-        <!-- Not signed in — clicking RSI button opens signup directly -->
-        <div id="rsi-dropdown-guest" style="padding:10px 18px;">
-          <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:#3a6080;letter-spacing:0.1em;text-transform:uppercase;">Not signed in</div>
-        </div>
-        <!-- Signed in state -->
-        <div id="rsi-dropdown-member" style="display:none;padding:10px 6px;">
+        <div id="rsi-dropdown-member" style="padding:10px 6px;">
           <button onclick="goToAcademy();toggleRsiDropdown()" class="rsi-drop-btn">⬡ Academy Portal</button>
           <button id="rsi-drop-admin" onclick="goToAdmin();toggleRsiDropdown()" class="rsi-drop-btn" style="display:none;color:#e84040;">⬡ Admin Panel</button>
           <button id="rsi-drop-instructor" onclick="goToInstructor();toggleRsiDropdown()" class="rsi-drop-btn" style="display:none;">★ Instructor Panel</button>
@@ -2602,11 +2595,14 @@ function updateRsiDropdown() {
   const callsign = localStorage.getItem('ram_callsign');
   const approved = localStorage.getItem('ram_approved') === 'true' || (currentMember && currentMember.approved);
   const label = document.getElementById('rsi-btn-label');
+  const arrow = document.getElementById('rsi-btn-arrow');
   const cs = document.getElementById('rsi-dropdown-callsign');
   const rank = document.getElementById('rsi-dropdown-rank');
   const guest = document.getElementById('rsi-dropdown-guest');
   const member = document.getElementById('rsi-dropdown-member');
   const instBtn = document.getElementById('rsi-drop-instructor');
+  // Show arrow only when signed in (dropdown mode)
+  if (arrow) arrow.style.display = (callsign && approved) ? 'inline' : 'none';
 
   if (callsign && approved) {
     if (label) label.textContent = callsign;
