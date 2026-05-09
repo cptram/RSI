@@ -2363,6 +2363,7 @@ textarea.inp { resize: vertical; min-height: 80px; font-family: 'Barlow', sans-s
     <div class="panel-tag">Intel</div>
     <div class="panel-title">Academy Progress</div>
     <p class="panel-sub">Track cadets, exam answers, progress, and graduate when ready.</p>
+    <button onclick="viewAcademyAsAdmin()" style="font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:#00c8ff;border:1px solid rgba(0,200,255,0.3);background:rgba(0,200,255,0.06);padding:10px 20px;cursor:pointer;margin-bottom:20px;transition:all 0.2s;" onmouseover="this.style.background='rgba(0,200,255,0.12)'" onmouseout="this.style.background='rgba(0,200,255,0.06)'">⬡ View Academy as Cadet →</button>
     <div id="alist-academy"></div>
     <div class="form" style="margin-top:16px;">
       <div class="form-title">// Remove Cadet from Firestore</div>
@@ -2457,12 +2458,20 @@ let currentMember = null;
 let academyInited = false;
 
 async function goToAcademy() {
+  const cachedCallsign = localStorage.getItem('ram_callsign');
+
+  // Admin goes to admin academy view, not cadet portal
+  if (cachedCallsign === ADMIN_CALLSIGN) {
+    openAdminPanel();
+    adminShowTab('academy');
+    return;
+  }
+
   document.getElementById('page-main').style.display = 'none';
   document.getElementById('page-academy').style.display = 'block';
   window.scrollTo({ top: 0, behavior: 'instant' });
   if (!academyInited) { initAcademy(); academyInited = true; }
 
-  const cachedCallsign = localStorage.getItem('ram_callsign');
   const cachedPassword = localStorage.getItem('ram_password');
 
   // Not signed in at all — show signup/sign in overlay
@@ -2495,37 +2504,40 @@ async function loadMemberAndEnter(callsign) {
   const data = await fsGet('members', callsign);
   currentMember = data || {};
 
-  // Not yet enrolled in academy — show enrollment gate (Discord/RSI + exam)
-  if (!data || !data.enrolled) {
-    showEnrollGate('step1');
-    // Show their callsign in the enrollment form
-    const cd = document.getElementById('enroll-callsign-display');
-    if (cd) cd.textContent = '// SIGNED IN AS: ' + callsign;
+  // Admin always goes straight through — no pending/enrollment gates
+  if (callsign === ADMIN_CALLSIGN) {
+    localStorage.setItem('ram_approved', 'true');
+    updateCallsignDisplay(callsign);
+    checkAdminButton();
     return;
   }
 
-  // Enrolled but pending approval
+  // Not yet submitted application details (step 2 not done)
+  if (!data || !data.discord) {
+    // They created an account but didn't finish step 2 — show signup gate step 2
+    const gate = document.getElementById('signup-gate');
+    gate.style.cssText = 'display:flex;flex-direction:column;align-items:center;position:fixed;inset:0;z-index:9500;background:rgba(4,7,15,0.98);backdrop-filter:blur(14px);overflow-y:auto;padding-top:40px;';
+    document.getElementById('ss-step-1').style.display = 'none';
+    document.getElementById('ss-step-2').style.display = 'block';
+    document.getElementById('ss-step-3').style.display = 'none';
+    return;
+  }
+
+  // Submitted but pending approval
   if (!data.approved) {
-    showEnrollGate('pending');
-    const pd = document.getElementById('pending-callsign');
-    if (pd) pd.textContent = '// CALLSIGN: ' + callsign + ' — AWAITING ADMIRAL APPROVAL';
+    const gate = document.getElementById('signup-gate');
+    gate.style.cssText = 'display:flex;flex-direction:column;align-items:center;position:fixed;inset:0;z-index:9500;background:rgba(4,7,15,0.98);backdrop-filter:blur(14px);overflow-y:auto;padding-top:40px;';
+    document.getElementById('ss-step-1').style.display = 'none';
+    document.getElementById('ss-step-2').style.display = 'none';
+    document.getElementById('ss-step-3').style.display = 'block';
+    const cd = document.getElementById('ss-confirm-callsign');
+    if (cd) cd.textContent = '// CALLSIGN: ' + callsign + ' — AWAITING ADMIRAL APPROVAL';
     return;
   }
 
-  // Approved — enter academy portal
-  document.getElementById('enroll-gate').style.display = 'none';
-  localStorage.setItem('ram_callsign', callsign);
+  // Approved — update display and let them use the site
   localStorage.setItem('ram_approved', 'true');
   updateCallsignDisplay(callsign);
-  if (data.isInstructor) {
-    const btn = document.getElementById('inst-panel-btn');
-    if (btn) btn.style.display = 'inline-block';
-  }
-  acadS.checks = data.checks || [];
-  acadS.mods   = data.mods   || [];
-  acadS.div    = data.division || null;
-  acadS.divOk  = data.division && data.division !== 'UNASSIGNED';
-  initAcademy();
 }
 
 function showEnrollGate(step) {
@@ -3379,7 +3391,12 @@ async function doSignupSignin() {
       currentMember = data;
       localStorage.setItem('ram_callsign', callsign);
       localStorage.setItem('ram_password', password);
-      localStorage.setItem('ram_approved', data && data.approved ? 'true' : 'false');
+      // Admin always approved
+      if (callsign === ADMIN_CALLSIGN) {
+        localStorage.setItem('ram_approved', 'true');
+      } else {
+        localStorage.setItem('ram_approved', data && data.approved ? 'true' : 'false');
+      }
       document.getElementById('signup-gate').style.display = 'none';
       updateCallsignDisplay(callsign);
       checkAdminButton();
@@ -3932,6 +3949,30 @@ function initAcademy() {
 
 
 // ═══ ADMIN FUNCTIONS ═══
+
+function viewAcademyAsAdmin() {
+  document.getElementById('page-admin').style.cssText = 'display:none;';
+  document.getElementById('page-academy').style.display = 'block';
+  document.getElementById('enroll-gate').style.display = 'none';
+  if (!academyInited) { initAcademy(); academyInited = true; }
+  window.scrollTo({ top: 0, behavior: 'instant' });
+  const existing = document.getElementById('admin-preview-bar');
+  if (!existing) {
+    const bar = document.createElement('div');
+    bar.id = 'admin-preview-bar';
+    bar.style.cssText = "position:fixed;top:0;left:0;right:0;z-index:9999;background:#e84040;color:#04070f;font-family:'Share Tech Mono',monospace;font-size:12px;letter-spacing:0.15em;text-transform:uppercase;padding:10px 24px;display:flex;align-items:center;justify-content:space-between;";
+    bar.innerHTML = '<span>⬡ Admin Preview — Viewing as Cadet</span><button onclick="closeAcademyPreview()" style="background:#04070f;color:#e84040;border:1px solid #e84040;font-family:\'Share Tech Mono\',monospace;font-size:11px;letter-spacing:0.1em;text-transform:uppercase;padding:5px 14px;cursor:pointer;">← Back to Admin</button>';
+    document.body.appendChild(bar);
+  }
+}
+
+function closeAcademyPreview() {
+  document.getElementById('page-academy').style.display = 'none';
+  const bar = document.getElementById('admin-preview-bar');
+  if (bar) bar.remove();
+  openAdminPanel();
+  adminShowTab('academy');
+}
 
 function initAdminAll() {
   adminShowTab('members');
